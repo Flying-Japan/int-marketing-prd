@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import type { SlideData } from "@/types/proposal";
 
+export const runtime = "edge";
+
 // Google Slides API integration
 // Requires: GOOGLE_SERVICE_ACCOUNT_KEY (JSON), GOOGLE_SLIDES_TEMPLATE_ID
 

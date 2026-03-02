@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
+export const runtime = "edge";
+
 const SYSTEM_PROMPT = `You are a senior advertising strategist for Flying Japan, a tourism marketing agency based in Osaka.
 Given meeting notes about a client (hotel, restaurant, tourism spot, etc.), generate a structured advertising proposal.
 
