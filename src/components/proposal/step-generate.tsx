@@ -15,6 +15,7 @@ import {
   Save,
 } from "lucide-react";
 import { useProposalStore } from "@/stores/proposal-store";
+import { validateProposalDraft } from "@/lib/proposal-validation";
 import { toast } from "sonner";
 
 export function StepGenerate() {
@@ -58,12 +59,7 @@ export function StepGenerate() {
       const data = await res.json();
       setSlidesUrl(data.url);
       saveToHistory();
-
-      if (data.mock) {
-        toast.info("Google Slides API 미설정. Mock URL이 생성되었습니다.");
-      } else {
-        toast.success("Google Slides가 생성되었습니다!");
-      }
+      toast.success("Google Slides가 생성되었습니다!");
     } catch (e) {
       toast.error(
         `생성 실패: ${e instanceof Error ? e.message : "알 수 없는 오류"}`,
@@ -86,11 +82,17 @@ export function StepGenerate() {
   function handleApplyJson() {
     try {
       const parsed = JSON.parse(jsonText);
-      updateDraft(parsed);
+      const validation = validateProposalDraft(parsed);
+      if (!validation.ok) {
+        throw new Error(validation.error);
+      }
+      updateDraft(validation.value);
       toast.success("Deck JSON이 적용되었습니다.");
       setShowJson(false);
-    } catch {
-      toast.error("잘못된 JSON 형식입니다.");
+    } catch (e) {
+      toast.error(
+        `잘못된 JSON 형식입니다. ${e instanceof Error ? e.message : ""}`.trim(),
+      );
     }
   }
 
