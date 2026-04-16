@@ -20,12 +20,9 @@ export async function POST(req: NextRequest) {
   const templateId = process.env.GOOGLE_SLIDES_TEMPLATE_ID;
 
   if (!saKeyJson) {
-    // Fallback: return a mock URL for development
     return NextResponse.json({
-      url: `https://docs.google.com/presentation/d/mock-${Date.now()}/edit`,
-      message: "GOOGLE_SERVICE_ACCOUNT_KEY not configured. Returning mock URL.",
-      mock: true,
-    });
+      error: "GOOGLE_SERVICE_ACCOUNT_KEY is not configured.",
+    }, { status: 500 });
   }
 
   try {
@@ -74,24 +71,8 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Step 3: Make it publicly viewable
-    await fetch(
-      `https://www.googleapis.com/drive/v3/files/${presentationId}/permissions`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          role: "reader",
-          type: "anyone",
-        }),
-      },
-    );
-
     const url = `https://docs.google.com/presentation/d/${presentationId}/edit`;
-    return NextResponse.json({ url, mock: false });
+    return NextResponse.json({ url });
   } catch (e) {
     return NextResponse.json(
       { error: `Slides generation failed: ${e instanceof Error ? e.message : e}` },

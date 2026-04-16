@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { validateProposalDraft } from "@/lib/proposal-validation";
 
 export const runtime = "edge";
 
@@ -83,7 +84,14 @@ export async function POST(req: NextRequest) {
     }
 
     const draft = JSON.parse(content);
-    return NextResponse.json(draft);
+    const validation = validateProposalDraft(draft);
+    if (!validation.ok) {
+      return NextResponse.json(
+        { error: `Invalid AI response: ${validation.error}` },
+        { status: 500 },
+      );
+    }
+    return NextResponse.json(validation.value);
   } catch (e) {
     return NextResponse.json(
       { error: `Generation failed: ${e instanceof Error ? e.message : e}` },
